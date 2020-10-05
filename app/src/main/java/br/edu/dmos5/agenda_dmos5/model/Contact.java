@@ -1,7 +1,9 @@
 package br.edu.dmos5.agenda_dmos5.model;
 
 import java.io.Serializable;
-
+/**
+ * @author vinicius.montouro
+ */
 public class Contact implements Serializable {
 
     public static final String CONTACT_KEY = "CONTACT_KEY";
@@ -12,6 +14,8 @@ public class Contact implements Serializable {
 
     private String cellPhone;
 
+    private String userId;
+
     public Contact() {
     }
 
@@ -19,6 +23,13 @@ public class Contact implements Serializable {
         this.fullName = fullName;
         this.landlinePhone = landlinePhone;
         this.cellPhone = cellPhone;
+    }
+
+    public Contact(String fullName, String landlinePhone, String cellPhone, String userId) {
+        this.fullName = fullName;
+        this.landlinePhone = landlinePhone;
+        this.cellPhone = cellPhone;
+        this.userId = userId;
     }
 
     public String getFullName() {
@@ -43,6 +54,14 @@ public class Contact implements Serializable {
 
     public void setCellPhone(String cellPhone) {
         this.cellPhone = cellPhone;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     @Override

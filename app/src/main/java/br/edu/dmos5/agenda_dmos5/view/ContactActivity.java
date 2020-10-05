@@ -1,64 +1,86 @@
 package br.edu.dmos5.agenda_dmos5.view;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
-import java.util.LinkedList;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.List;
 
 import br.edu.dmos5.agenda_dmos5.R;
 import br.edu.dmos5.agenda_dmos5.model.Contact;
 import br.edu.dmos5.agenda_dmos5.repository.ContactRepository;
-
-public class ContactActivity extends AppCompatActivity {
+import br.edu.dmos5.agenda_dmos5.view.adapter.ItemContactAdapter;
+import br.edu.dmos5.agenda_dmos5.view.adapter.RecyclerItemClickListener;
+/**
+ * @author vinicius.montouro
+ */
+public class ContactActivity extends AppCompatActivity implements View.OnClickListener {
 
     private List<Contact> contactList;
 
     private ContactRepository contactRepository;
 
-    private ListView listViewContacts;
+    private RecyclerView contactsRecyclerView;
 
-    private ArrayAdapter<Contact> arrayAdapterContact;
+    private ItemContactAdapter contactAdapter;
+
+    private FloatingActionButton buttonExit;
+
+    private SharedPreferences mSharedPreferences;
+
+    private String loggedUser;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact);
 
+        mSharedPreferences = this.getPreferences(MODE_PRIVATE);
+        mSharedPreferences = this.getSharedPreferences(getString(R.string.file_preferences), MODE_PRIVATE);
+
+        loggedUser = mSharedPreferences.getString(getString(R.string.key_logged_user), "");
+
+        buttonExit = findViewById(R.id.exit);
+        buttonExit.setOnClickListener(this);
+
         contactRepository = new ContactRepository(getApplicationContext());
-        contactList = contactRepository.findAll();
+        contactList = contactRepository.findAll(loggedUser);
 
-        listViewContacts = findViewById(R.id.contacts_list_view);
-        arrayAdapterContact = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, contactList);
-        listViewContacts.setAdapter(arrayAdapterContact);
+        contactsRecyclerView = findViewById(R.id.contacts_recycler_view);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        contactsRecyclerView.setLayoutManager(layoutManager);
 
-        listViewContacts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                                    @Override
-                                                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                                        Contact contact = contactList.get(position);
-                                                        Intent intent = new Intent(getApplicationContext(), ContactDetailsActivity.class);
-                                                        intent.putExtra(Contact.CONTACT_KEY, contact);
-                                                        startActivity(intent);
-                                                    }
-                                                }
-        );
+        contactAdapter = new ItemContactAdapter(contactList);
+        contactsRecyclerView.setAdapter(contactAdapter);
 
+        contactAdapter.setClickListener(new RecyclerItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                Contact contact = contactList.get(position);
+                Intent intent = new Intent(getApplicationContext(), ContactDetailsActivity.class);
+                intent.putExtra(Contact.CONTACT_KEY, contact);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
     protected void onResume() {
         contactList.clear();
-        contactList.addAll(contactRepository.findAll());
+        contactList.addAll(contactRepository.findAll(loggedUser));
+        contactAdapter.notifyDataSetChanged();
         super.onResume();
     }
 
@@ -79,4 +101,15 @@ public class ContactActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onClick(View v) {
+        if (v == buttonExit) {
+            SharedPreferences.Editor mEditor = mSharedPreferences.edit();
+            mEditor.putString(getString(R.string.key_logged_user), "");
+            mEditor.commit();
+            Intent intent = new Intent(this, NewUserActivity.class);
+            startActivity(intent);
+            finish();
+        }
+    }
 }

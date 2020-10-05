@@ -1,5 +1,8 @@
 package br.edu.dmos5.agenda_dmos5.model.exceptions;
 
+/**
+ * @author vinicius.montouro
+ */
 public class EmptyFieldsException extends RuntimeException {
 
     public EmptyFieldsException() {

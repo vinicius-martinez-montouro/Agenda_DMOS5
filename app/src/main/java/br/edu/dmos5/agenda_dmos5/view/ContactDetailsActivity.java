@@ -10,7 +10,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import br.edu.dmos5.agenda_dmos5.R;
 import br.edu.dmos5.agenda_dmos5.model.Contact;
-
+/**
+ * @author vinicius.montouro
+ */
 public class ContactDetailsActivity extends AppCompatActivity {
 
     private TextView nameTextView;
